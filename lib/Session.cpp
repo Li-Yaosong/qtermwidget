@@ -42,7 +42,9 @@
 #include "TerminalDisplay.h"
 #include "ShellCommand.h"
 #include "Vt102Emulation.h"
-
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 using namespace Konsole;
 
 int Session::lastSessionId = 0;
@@ -537,8 +539,20 @@ bool Session::sendSignal(int signal)
     {
         return false;
     }
-
-    int result = ::kill(static_cast<pid_t>(_shellProcess->processId()), signal);
+    int result = -1;
+#ifdef Q_OS_WIN
+    // Windows 版本，使用 TerminateProcess 终止进程
+    HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, static_cast<DWORD>(_shellProcess->processId()));
+    if (hProcess) {
+        result = TerminateProcess(hProcess, 0) ? 0 : -1;  // Terminate the process
+        CloseHandle(hProcess);  // Don't forget to close the handle
+    } else {
+        result = -1;  // Failed to open process for termination
+    }
+#else
+    // Unix/Linux 版本，使用 kill 终止进程
+    result = ::kill(static_cast<pid_t>(_shellProcess->processId()), signal);
+#endif
 
      if ( result == 0 )
      {

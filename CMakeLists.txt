@@ -36,17 +36,13 @@ set(QT_MINIMUM_VERSION "6.6.0")
 set(LXQTBT_MINIMUM_VERSION "2.1.0")
 
 find_package(Qt6Widgets "${QT_MINIMUM_VERSION}" REQUIRED)
+find_package(Qt6Multimedia "${QT_MINIMUM_VERSION}" REQUIRED)
 find_package(Qt6LinguistTools "${QT_MINIMUM_VERSION}" REQUIRED)
-find_package(lxqt2-build-tools ${LXQTBT_MINIMUM_VERSION} REQUIRED)
 
 if(USE_UTF8PROC)
     find_package(Utf8Proc REQUIRED)
 endif()
 
-include(LXQtPreventInSourceBuilds)
-include(LXQtTranslateTs)
-include(LXQtCompilerSettings NO_POLICY_SCOPE)
-include(LXQtCreatePkgConfigFile)
 
 if(APPLE)
     if(CMAKE_VERSION VERSION_GREATER 3.9)
@@ -61,46 +57,71 @@ set(QTERMWIDGET_LIBRARY_NAME qtermwidget6)
 # main library
 
 set(SRCS
-    lib/BlockArray.cpp
+    # lib/BlockArray.cpp
+    lib/CharWidth.cpp
     lib/ColorScheme.cpp
     lib/Emulation.cpp
     lib/Filter.cpp
     lib/History.cpp
     lib/HistorySearch.cpp
     lib/KeyboardTranslator.cpp
-    lib/konsole_wcwidth.cpp
-    lib/kprocess.cpp
-    lib/kpty.cpp
-    lib/kptydevice.cpp
-    lib/kptyprocess.cpp
-    lib/Pty.cpp
-    lib/qtermwidget.cpp
+    # lib/Pty.cpp
     lib/Screen.cpp
     lib/ScreenWindow.cpp
     lib/SearchBar.cpp
-    lib/Session.cpp
+    # lib/Session.cpp
     lib/ShellCommand.cpp
     lib/TerminalCharacterDecoder.cpp
     lib/TerminalDisplay.cpp
-    lib/tools.cpp
     lib/Vt102Emulation.cpp
+    # lib/konsole_wcwidth.cpp
+    # lib/kprocess.cpp
+    # lib/kpty.cpp
+    # lib/kptydevice.cpp
+    # lib/kptyprocess.cpp
+    lib/qtermwidget.cpp
+    lib/utf8proc.c
+    lib/utf8proc_data.c
+    # lib/tools.cpp
 )
 
 # Only the Headers that need to be moc'd go here
 set(HDRS
+    # lib/BlockArray.h
+    lib/CharWidth.h
+    lib/Character.h
+    lib/CharacterColor.h
+    lib/ColorScheme.h
+    lib/ColorTables.h
+    lib/DefaultTranslatorText.h
     lib/Emulation.h
+    lib/ExtendedDefaultTranslator.h
     lib/Filter.h
+    lib/History.h
     lib/HistorySearch.h
-    lib/kprocess.h
-    lib/kptydevice.h
-    lib/kptyprocess.h
-    lib/Pty.h
-    lib/qtermwidget.h
+    lib/KeyboardTranslator.h
+    lib/LineFont.h
+    # lib/Pty.h
+    lib/Screen.h
     lib/ScreenWindow.h
     lib/SearchBar.h
-    lib/Session.h
+    # lib/Session.h
+    lib/ShellCommand.h
+    lib/TerminalCharacterDecoder.h
     lib/TerminalDisplay.h
     lib/Vt102Emulation.h
+    # lib/konsole_wcwidth.h
+    # lib/kprocess.h
+    # lib/kpty.h
+    # lib/kpty_p.h
+    # lib/kptydevice.h
+    # lib/kptyprocess.h
+    lib/qtermwidget.h
+    lib/qtermwidget_interface.h
+    lib/qtermwidget_version.h
+    # lib/tools.h
+    lib/utf8proc.h
+    qtermwidget_export.h
 )
 
 set(UI
@@ -134,20 +155,22 @@ qt6_wrap_cpp(MOCS ${HDRS})
 qt6_wrap_ui(UI_SRCS ${UI})
 set(PKG_CONFIG_REQ "Qt6Widgets")
 
-lxqt_translate_ts(QTERMWIDGET_QM
-    TRANSLATION_DIR "lib/translations"
-    UPDATE_TRANSLATIONS
-        ${UPDATE_TRANSLATIONS}
-    SOURCES
-        ${SRCS} ${HDRS} ${UI}
-    INSTALL_DIR
-        ${TRANSLATIONS_DIR}
-    COMPONENT
-        Runtime
-)
+# lxqt_translate_ts(QTERMWIDGET_QM
+#     TRANSLATION_DIR "lib/translations"
+#     UPDATE_TRANSLATIONS
+#         ${UPDATE_TRANSLATIONS}
+#     SOURCES
+#         ${SRCS} ${HDRS} ${UI}
+#     INSTALL_DIR
+#         ${TRANSLATIONS_DIR}
+#     COMPONENT
+#         Runtime
+# )
 
-add_library(${QTERMWIDGET_LIBRARY_NAME} SHARED ${SRCS} ${MOCS} ${UI_SRCS} ${QTERMWIDGET_QM})
-target_link_libraries(${QTERMWIDGET_LIBRARY_NAME} Qt6::Widgets)
+add_library(${QTERMWIDGET_LIBRARY_NAME} SHARED ${SRCS} ${MOCS} ${UI_SRCS} ${QTERMWIDGET_QM}
+    lib/res.qrc
+    lib/LineFont.src)
+target_link_libraries(${QTERMWIDGET_LIBRARY_NAME} Qt6::Widgets Qt6::Multimedia)
 set_target_properties( ${QTERMWIDGET_LIBRARY_NAME} PROPERTIES
                        SOVERSION ${QTERMWIDGET_VERSION_MAJOR}
                        VERSION ${QTERMWIDGET_VERSION}
@@ -263,17 +286,17 @@ install(DIRECTORY
     FILES_MATCHING PATTERN "*.*schem*"
 )
 
-lxqt_create_pkgconfig_file(
-    PACKAGE_NAME ${QTERMWIDGET_LIBRARY_NAME}
-    DESCRIPTIVE_NAME ${QTERMWIDGET_LIBRARY_NAME}
-    DESCRIPTION "QTermWidget library for Qt ${QTERMWIDGET_VERSION_MAJOR}.x"
-    INCLUDEDIRS ${QTERMWIDGET_LIBRARY_NAME}
-    LIBS ${QTERMWIDGET_LIBRARY_NAME}
-    REQUIRES ${PKG_CONFIG_REQ}
-    VERSION ${QTERMWIDGET_VERSION}
-    INSTALL
-    COMPONENT Devel
-)
+# lxqt_create_pkgconfig_file(
+#     PACKAGE_NAME ${QTERMWIDGET_LIBRARY_NAME}
+#     DESCRIPTIVE_NAME ${QTERMWIDGET_LIBRARY_NAME}
+#     DESCRIPTION "QTermWidget library for Qt ${QTERMWIDGET_VERSION_MAJOR}.x"
+#     INCLUDEDIRS ${QTERMWIDGET_LIBRARY_NAME}
+#     LIBS ${QTERMWIDGET_LIBRARY_NAME}
+#     REQUIRES ${PKG_CONFIG_REQ}
+#     VERSION ${QTERMWIDGET_VERSION}
+#     INSTALL
+#     COMPONENT Devel
+# )
 
 configure_file(
     "${PROJECT_SOURCE_DIR}/cmake/${QTERMWIDGET_LIBRARY_NAME}-config.cmake.in"
