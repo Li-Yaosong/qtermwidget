@@ -217,7 +217,7 @@ public:
     bool bracketedPasteModeIsDisabled() const;
 
     /** Set the empty space outside the terminal */
-    void setMargin(int);
+    void setMargin(int, int);
 
     /** Get the empty space outside the terminal */
     int getMargin() const;

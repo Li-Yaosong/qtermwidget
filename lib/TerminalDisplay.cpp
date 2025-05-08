@@ -3547,9 +3547,9 @@ void TerminalDisplay::setLineSpacing(uint i) {
 
 int TerminalDisplay::margin() const { return _topBaseMargin; }
 
-void TerminalDisplay::setMargin(int i) {
-    _topBaseMargin = i;
-    _leftBaseMargin = i;
+void TerminalDisplay::setMargin(int top, int left) {
+    _topBaseMargin = top;
+    _leftBaseMargin = left;
 }
 
 int TerminalDisplay::getCursorX() const {

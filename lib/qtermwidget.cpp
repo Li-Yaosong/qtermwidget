@@ -653,8 +653,8 @@ void QTermWidget::cursorChanged(Emulation::KeyboardCursorShape cursorShape, bool
     setBlinkingCursor(blinkingCursorEnabled);
 }
 
-void QTermWidget::setMargin(int margin) {
-    m_terminalDisplay->setMargin(margin);
+void QTermWidget::setMargin(int top, int left) {
+    m_terminalDisplay->setMargin(top, left);
 }
 
 int QTermWidget::getMargin() const {
